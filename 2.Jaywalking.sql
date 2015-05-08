@@ -2,7 +2,6 @@
 --		开始我们构建账户和产品是一对一关系，但随着项
 --		目日趋成熟，需要改为一对多的对应关系
 
------------------------------------------------------------------------------
 --反模式:
 --		我们使用一个字段，存储多个值，中间用[，]分割		
 
@@ -28,4 +27,59 @@ WHERE p.product_id = 123;
 SELECT product_id,
        LENGTH(account_id) - LENGTH(REPLACE(account_id, ',' , '')) + 1 AS contacts_per_product
 FROM Products;
------------------------------------------------------------------------------
+
+--跟新指定产品的账号--Updating Accounts for a Specific Product
+--使用字符串链接可以将指定的账号添加到原账号的末尾，但这样做则没法保证该
+--字段的排序
+UPDATE Product
+SET account_id = CONCAT(account_id,',',3)
+WHERE product_id = 4;
+
+--引发的其他问题
+--1、数据验证：无法验证账号字段里的非法字符（pp:在程序验证还是数据库？）
+--2、分隔符选择：当想要插入多个值的列为字符串时，很难选择一个恰当的分隔符
+--3、长度选择：要的放入列需要设置一个长度，但是我们几乎不可能设置一个合适的值
+
+
+--可以使用的地方
+--  应用程序可能会需要逗号分隔的这种存储格式，也可能没必要获取列表中的单独项。同样，
+--  如果应用程序接收的源数据是有逗号分隔的格式，而你只需要存储和使用它们并且不对其做
+--  任何修改，完全没必要分开其中的值
+
+
+--解决
+-- 我们可以建立一张中间表（交叉表）
+CREATE TABLE Contacts (
+	product_id BIGINT UNSIGNED NOT NULL,
+	account_id BIGINT UNSIGNED NOT NULL,
+	PRIMARY KEY (product_id, account_id),
+	FOREIGN KEY (product_id) REFERENCES Products(product_id),
+	FOREIGN KEY (account_id) REFERENCES Accounts(account_id)
+);
+INSERT INTO `contacts` VALUES (1, 1);
+INSERT INTO `contacts` VALUES (1, 3);
+INSERT INTO `contacts` VALUES (2, 3);
+INSERT INTO `contacts` VALUES (3, 4);
+INSERT INTO `contacts` VALUES (4, 1);
+INSERT INTO `contacts` VALUES (2, 5);
+INSERT INTO `contacts` VALUES (4, 2);
+INSERT INTO `contacts` VALUES (4, 3);
+
+
+--查询指定账号的产品
+SELECT p.*
+FROM product AS p ,
+     contacts AS c
+WHERE c.product_id = p.product_id
+  AND c.account_id = 3;
+
+SELECT p.*
+FROM product AS p
+JOIN contacts AS c ON c.product_id = p.product_id
+WHERE c.account_id = 3;
+
+--查询指定产品的账号
+SELECT a.*
+FROM accounts AS a
+JOIN contacts AS c ON c.account_id = a.account_id
+WHERE c.product_id = 2;

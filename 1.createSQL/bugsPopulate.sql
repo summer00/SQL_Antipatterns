@@ -56,9 +56,10 @@ INSERT INTO `screenshots` VALUES (2, 3, NULL, '333');
 
 
 /***************************product**********************/
-INSERT INTO `product` VALUES (1, '采购', '3');
-INSERT INTO `product` VALUES (2, '草稿箱', '5');
+INSERT INTO `product` VALUES (1, '采购', '1,3');
+INSERT INTO `product` VALUES (2, '草稿箱', '3,5');
 INSERT INTO `product` VALUES (3, '销售', '4');
+INSERT INTO `product` VALUES (4, 'Visual TurboBuilder', '1,2,3');
 
 
 /*************************bugsproducts*******************/
