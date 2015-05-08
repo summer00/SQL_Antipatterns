@@ -9,7 +9,7 @@
 INSERT INTO Product (product_id, product_name, account_id)
 VALUES (DEFAULT,
         'Visual TurboBuilder' ,
-        '12,34');
+        '1,3');
 
 --查询指定账号的产品
 SELECT * FROM product WHERE account_id LIKE '%12%';
@@ -68,12 +68,6 @@ INSERT INTO `contacts` VALUES (4, 3);
 
 --查询指定账号的产品
 SELECT p.*
-FROM product AS p ,
-     contacts AS c
-WHERE c.product_id = p.product_id
-  AND c.account_id = 3;
-
-SELECT p.*
 FROM product AS p
 JOIN contacts AS c ON c.product_id = p.product_id
 WHERE c.account_id = 3;
@@ -83,3 +77,14 @@ SELECT a.*
 FROM accounts AS a
 JOIN contacts AS c ON c.account_id = a.account_id
 WHERE c.product_id = 2;
+
+--执行聚合函数
+--每个产品相关的账号数量
+SELECT product_id, COUNT(*) AS account_num FROM contacts GROUP BY product_id;
+--每个账号相关的产品数量
+SELECT account_id, COUNT(*) FROM contacts GROUP BY account_id;
+
+--其他好处：可以进行ID验证，不需鉴别分隔符，不用限制列长，可以建索引提高查询效率，
+--		   还可以在交叉表中记录其他数据
+
+--总结:每个值都应该存储在各自的行与列中
