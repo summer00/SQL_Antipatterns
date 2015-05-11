@@ -42,11 +42,18 @@ INSERT INTO `tags` VALUES (2, '优化');
 
 
 /***************************comments*********************/
-INSERT INTO `comments` VALUES (1, 1, 1, '2015-5-2 20:11:19', '请迅速修复');
-INSERT INTO `comments` VALUES (2, 2, 1, '2015-5-2 20:11:19', '修复中！！');
-INSERT INTO `comments` VALUES (3, 1, 2, '2015-5-2 20:11:19', '请迅速修复');
-INSERT INTO `comments` VALUES (4, 1, 3, '2015-5-2 20:11:19', '无法重现');
-INSERT INTO `comments` VALUES (5, 1, 4, '2015-5-2 20:11:19', '已确认，请查证');
+INSERT INTO `comments` VALUES (1, 1, 1, '2015-5-2 20:11:19', '请迅速修复', NULL);
+INSERT INTO `comments` VALUES (2, 2, 1, '2015-5-2 20:11:19', '修复中！！', NULL);
+INSERT INTO `comments` VALUES (3, 1, 2, '2015-5-2 20:11:19', '请迅速修复', NULL);
+INSERT INTO `comments` VALUES (4, 1, 3, '2015-5-2 20:11:19', '无法重现', NULL);
+INSERT INTO `comments` VALUES (5, 1, 4, '2015-5-2 20:11:19', '已确认，请查证', NULL);
+INSERT INTO `comments` VALUES (6, 3, 1, '2015-5-11 14:43:44', '如何形成的？', NULL);
+INSERT INTO `comments` VALUES (7, 3, 2, '2015-5-11 14:44:54', '空指针', 6);
+INSERT INTO `comments` VALUES (8, 3, 3, '2015-5-12 14:45:14', '输入异常', 6);
+INSERT INTO `comments` VALUES (9, 3, 1, '2015-5-11 14:46:17', '不我确认过了', 7);
+INSERT INTO `comments` VALUES (10, 3, 2, '2015-5-11 14:46:43', '是的，我查一下', 8);
+INSERT INTO `comments` VALUES (11, 3, 1, '2015-5-11 14:47:15', '好，查一下', 8);
+INSERT INTO `comments` VALUES (12, 3, 3, '2015-5-11 14:48:03', '解决', 11);
 
 
 /***************************screenshots******************/
