@@ -81,3 +81,52 @@ LEFT OUTER JOIN IssueAttributes AS i3 ON i.issue_id = i3.issue_id AND i3.attr_na
 LEFT OUTER JOIN IssueAttributes AS i4 ON i.issue_id = i4.issue_id AND i4.attr_name = 'description'
 LEFT OUTER JOIN issueattributes AS i5 ON i.issue_id = i5.issue_id AND i5.attr_name = 'version_affected'
 WHERE i.issue_id = 1234 OR i.issue_id = 1235;
+
+--合理的使用
+--基本上在关系型数据库中无法使用这种设计模式。要采用不定的属性的存储数据的形式时，通常要采用非关系型数据库（NoSQL）。
+
+-- 解决1：单表继承
+-- 最简单的设计是将所有相关的类型都存在一张表中，为所有类型的所有属性都保留一列。问题是拓展性不好。在子类很少，以及子类特殊性很少的情况下可以选择这种实现方式。
+--限制：1，每张表的列数有限制；2，没有任何标记来标记每个列属于哪个子类型。
+
+--解决2：实体表继承
+--为每一个子类型都创建一张单独的表，表中包含公共字段和特有字段。当很少一次性查询所有子类型时，是体表继承是一个好办法。
+--限制：1，无法确定表中那些字段是公共的，若公共字段添加，所有子类型表都要添加这个字段;2，当不区分子类型只查询公共字段的时候，需要建立一些复杂的视图（如下）解决。
+CREATE VIEW Issues AS
+SELECT b. *, 'bug' AS issue_type
+FROM Bugs AS b
+UNION ALL
+SELECT f. *, 'feature' AS issue_type
+FROM FeatureRequests AS f;
+
+--解决三：类表继承
+-- 创建一张基类表，包含所有子类型的公共属性。对于每个子类型，创建一个独立的表，通过外键和基类表相连。
+CREATE TABLE Issues (
+	i ssue_id SERIAL PRIMARY KEY,
+	reported_by BIGINT UNSIGNED NOT NULL,
+	product_id BIGINT UNSIGNED,
+	priority VARCHAR(20),
+	version_resolved VARCHAR(20),
+	status VARCHAR(20),
+	FOREIGN KEY (reported_by) REFERENCES Accounts(account_id),
+	FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+CREATE TABLE Bugs (
+	issue_id BIGINT UNSIGNED PRIMARY KEY,
+	severity VARCHAR(20),
+	version_affected VARCHAR(20),
+	FOREIGN KEY (issue_id) REFERENCES Issues(issue_id)
+);
+CREATE TABLE FeatureRequests (
+	issue_id BIGINT UNSIGNED PRIMARY KEY,
+	sponsor VARCHAR(50),
+	FOREIGN KEY (issue_id) REFERENCES Issues(issue_id)
+);
+-- 查询时使用连表查询也比较方便
+SELECT i. *,b. *,f. *
+FROM Issues AS i
+LEFT OUTER JOIN Bugs AS b USING (issue_id)
+LEFT OUTER JOIN FeatureRequests AS f USING (issue_id);
+
+--解决四：半结构化的数据模型
+-- 如果你有很多子类型或者你必须经常地增加新的属性支持，那么可以使用一个 BLOB 列来存储数据，用 XML 或者 JSON 格式——同时包含了属性的名字和值。 Martin Fowler 称这个模式为：序列化大对象块（Serialized LOB）。这个设计的优势之处就在于其优异的扩展性。该设计的缺点就是在这样的一个结构中， SQL 基本上没有办法获取某个指定的属性。当需要绝对灵活的设计的时候可以使用这个方案。
